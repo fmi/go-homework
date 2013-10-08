@@ -1,5 +1,7 @@
 package main
 
+import "testing"
+
 func TestFirstParsePath(t *testing.T) {
 	path := "D/go/code/../src/warcluster/tests/first/../../"
 
@@ -14,3 +16,4 @@ func TestSecondParsePath(t *testing.T) {
 	if parsePath(path) != "/python/mostImportant/MonthyPython/" {
 		t.Error("Result path is ", parsePath(path))
 	}
+}
