@@ -10,10 +10,8 @@
 
 Структурата Header, която ще носи данните за подаденото изображение, ще има данни като:
 
-	- `Format`		пази формата: RGB, RGBA, BGRA и тн.
-	- `Width`		съдържа броя колони от пиксели
-	- `Height`		съдържа броя редове от пиксели
-	- `Encoding` 	това ще е нужно за challenge, свързан с домашното. Но що се отнася до домашното, ще бъде nil...
+- `Format`		пази формата: RGB, RGBA, BGRA и тн.
+- `LineWidth`		съдържа броя колони от пиксели
 
 ##Colors
 
@@ -34,8 +32,9 @@
 
 ##Пример
 
-    >>> data := byte[]{0, 12, 244, 13, 26, 52, 31, 33, 41}
+    >>> data := []byte{0, 12, 244, 13, 26, 52, 31, 33, 41}
     [0 12 244 13 26 52 31 33 41]
-    >>> header := Header{"RGB", 3, 1, nil}
-    >>> fmt.Println(ParseImage(data, header).InspectPixel(0, 0))
+    >>> header := Header{"RGB", 3, nil}
+    >>> pixel = ParseImage(data, header).InspectPixel(0, 0)
+    >>> fmt.Println(pixel.Color())
     Red: 0, Green: 12, Blue: 244
