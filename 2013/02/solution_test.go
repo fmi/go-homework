@@ -2,20 +2,27 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
 func assertColor(pixel Pixel, rgb ...byte) (error, byte) {
 	if pixel.Color().Red != rgb[0] {
-		return errors.New("Red pixel should not be"), pixel.Color().Red
+		error_str := fmt.Sprintf("Red colour component was supposed to be %d but it was",
+			rgb[0])
+		return errors.New(error_str), pixel.Color().Red
 	}
 
 	if pixel.Color().Green != rgb[1] {
-		return errors.New("Green pixel should not be"), pixel.Color().Green
+		error_str := fmt.Sprintf("Red colour component was supposed to be %d but it was",
+			rgb[1])
+		return errors.New(error_str), pixel.Color().Green
 	}
 
 	if pixel.Color().Blue != rgb[2] {
-		return errors.New("Blue pixel should not be"), pixel.Color().Blue
+		error_str := fmt.Sprintf("Red colour component was supposed to be %d but it was",
+			rgb[2])
+		return errors.New(error_str), pixel.Color().Blue
 	}
 
 	return nil, 0
