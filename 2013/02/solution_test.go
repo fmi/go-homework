@@ -6,26 +6,26 @@ import (
 	"testing"
 )
 
-func assertColor(pixel Pixel, rgb ...byte) (error, byte) {
+func assertColor(pixel Pixel, rgb ...byte) error {
 	if pixel.Color().Red != rgb[0] {
-		error_str := fmt.Sprintf("Red colour component was supposed to be %d but it was",
-			rgb[0])
-		return errors.New(error_str), pixel.Color().Red
+		error_str := fmt.Sprintf("Wrong Red component: expected %d, got %d", rgb[0],
+			pixel.Color().Red)
+		return errors.New(error_str)
 	}
 
 	if pixel.Color().Green != rgb[1] {
-		error_str := fmt.Sprintf("Red colour component was supposed to be %d but it was",
-			rgb[1])
-		return errors.New(error_str), pixel.Color().Green
+		error_str := fmt.Sprintf("Wrong Green component: expected %d, got %d", rgb[1],
+			pixel.Color().Green)
+		return errors.New(error_str)
 	}
 
 	if pixel.Color().Blue != rgb[2] {
-		error_str := fmt.Sprintf("Red colour component was supposed to be %d but it was",
-			rgb[2])
-		return errors.New(error_str), pixel.Color().Blue
+		error_str := fmt.Sprintf("Wrong Blue component: expected %d, got %d", rgb[2],
+			pixel.Color().Blue)
+		return errors.New(error_str)
 	}
 
-	return nil, 0
+	return nil
 }
 
 func TestBasicRGBCall(t *testing.T) {
@@ -35,8 +35,8 @@ func TestBasicRGBCall(t *testing.T) {
 	header := Header{"RGB", 3}
 	picture := ParseImage(data, header)
 
-	if err, value := assertColor(picture.InspectPixel(0, 0), 0, 12, 244); err != nil {
-		t.Error(err, value)
+	if err := assertColor(picture.InspectPixel(0, 0), 0, 12, 244); err != nil {
+		t.Error(err)
 	}
 }
 
@@ -48,13 +48,13 @@ func TestBasicRGBACall(t *testing.T) {
 	picture := ParseImage(data, header)
 
 	first_pixel := picture.InspectPixel(0, 0)
-	if err, value := assertColor(first_pixel, 0, 6, 122); err != nil {
-		t.Error(err, value)
+	if err := assertColor(first_pixel, 0, 6, 122); err != nil {
+		t.Error(err)
 	}
 
 	second_pixel := picture.InspectPixel(3, 0)
-	if err, value := assertColor(second_pixel, 36, 133, 241); err != nil {
-		t.Error(err, value)
+	if err := assertColor(second_pixel, 36, 133, 241); err != nil {
+		t.Error(err)
 	}
 }
 
@@ -67,8 +67,8 @@ func TestBasicRGBARowsCall(t *testing.T) {
 	picture := ParseImage(data, header)
 
 	pixel := picture.InspectPixel(1, 1)
-	if err, value := assertColor(pixel, 36, 133, 241); err != nil {
-		t.Error(err, value)
+	if err := assertColor(pixel, 36, 133, 241); err != nil {
+		t.Error(err)
 	}
 }
 
@@ -81,7 +81,7 @@ func TestBasicBGRARowsCall(t *testing.T) {
 	picture := ParseImage(data, header)
 
 	pixel := picture.InspectPixel(1, 1)
-	if err, value := assertColor(pixel, 241, 133, 36); err != nil {
-		t.Error(err, value)
+	if err := assertColor(pixel, 241, 133, 36); err != nil {
+		t.Error(err)
 	}
 }
