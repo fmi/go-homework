@@ -18,7 +18,7 @@ func TestHeaders(t *testing.T) {
 	mdParser := NewMarkdownParser(loadTheReadme())
 	headers := mdParser.Headers()
 
-	if headers[0] != "type MarkdownParser" {
+	if headers[0] != "MarkdownParser" {
 		t.Fail()
 	}
 }
