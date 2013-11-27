@@ -18,15 +18,15 @@ func TestHeaders(t *testing.T) {
 	mdParser := NewMarkdownParser(loadTheReadme())
 	headers := mdParser.Headers()
 
-	if headers[0] != "type MarkdownParser" {
+	if headers[0] != "MarkdownParser" {
 		t.Fail()
 	}
 }
 
 func TestSubHeadersOf(t *testing.T) {
 	mdParser := NewMarkdownParser(loadTheReadme())
-	subHeaders := mdParser.SubHeadersOf("Пример")
-	if len(subHeaders) != 0 {
+	subHeaders := mdParser.SubHeadersOf("MarkdownParser")
+	if subHeaders[0] != "type MarkdownParser" {
 		t.Fail()
 	}
 }

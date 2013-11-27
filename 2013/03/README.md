@@ -88,9 +88,9 @@ __Забележка__: От првилото да игнорирате първ
 
     >>> mdParser := NewMarkdownParser(data)
     >>> mdParser.Headers()
+    <<< []string{"MarkdownParser"}
+    >>> mdParser.SubHeadersOf("MarkdownParser")
     <<< []string{"type MarkdownParser", "Пример"}
-    >>> mdParser.SubHeadersOf("Пример")
-    <<< []string{}
     >>> mdParser.GenerateTableOfContents()
     <<< 1. MarkdownParser
     <<< 1.1 type MarkdownParser
@@ -102,4 +102,4 @@ __Забележка__: От првилото да игнорирате първ
     <<< 1.1.6 `func (mp *MarkdownParser) Links() []string`
     <<< 1.1.7 `func (mp *MarkdownParser) Emails() []string`
     <<< 1.1.8 `func (mp *MarkdownParser) GenerateTableOfContents() string`
-    <<< 2. Пример
+    <<< 1.2. Пример
