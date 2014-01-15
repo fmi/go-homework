@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-// TODO: maybe we also want to test "# *foo*" headings? Would we test that they
-// parse the markdown?
 func TestHeaders(t *testing.T) {
 	mdParser := NewMarkdownParser(`
 # One
@@ -18,17 +16,15 @@ Two
 
 # # Three # Four
 `)
-	headers := mdParser.Headers()
-	if len(headers) < 3 {
-		t.Errorf("Length is less than 3: %#v", headers)
-		return
+	// let's not test whether the solution trims or not
+	headers := []string{}
+	for _, h := range mdParser.Headers() {
+		headers = append(headers, strings.TrimSpace(h))
 	}
+	expected := []string{"One", "Two", "# Three # Four"}
 
-	results := []string{"One", "Two", "# Three # Four"}
-	for i := 0; i < len(results); i++ {
-		if headers[i] != results[i] {
-			t.Errorf("%s is missing: %#v", results[i], headers)
-		}
+	if !reflect.DeepEqual(headers, expected) {
+		t.Errorf("Not equal:\n  %#v\n  %#v", headers, expected)
 	}
 }
 
@@ -49,44 +45,28 @@ Three-four
 -------
 `)
 	subHeaders := mdParser.SubHeadersOf("Doo-doo")
-
-	if len(subHeaders) < 2 {
-		t.Errorf("Length is less than 2: %#v", subHeaders)
-		return
-	}
-
-	expecteds := []string{"Dee-dee", "Boo-boo"}
-	for i, expected := range expecteds {
-		if subHeaders[i] != expected {
-			t.Errorf("%s is missing: %#v", expected, subHeaders)
-		}
+	expected := []string{"Dee-dee", "Boo-boo"}
+	if !reflect.DeepEqual(subHeaders, expected) {
+		t.Errorf("Not equal:\n  %#v\n  %#v", subHeaders, expected)
 	}
 
 	subHeaders = mdParser.SubHeadersOf("Bla-bla")
-	if len(subHeaders) != 0 {
-		t.Errorf("Length is not 0: %#v", subHeaders)
-		return
+	expected = nil
+	if !reflect.DeepEqual(subHeaders, expected) {
+		t.Errorf("Not equal:\n  %#v\n  %#v", subHeaders, expected)
 	}
 
 	subHeaders = mdParser.SubHeadersOf("One-two")
-
-	if len(subHeaders) != 1 {
-		t.Errorf("Length is less than 2: %#v", subHeaders)
-		return
-	}
-
-	expectations := []string{"Three-four"}
-	for i, expected := range expectations {
-		if subHeaders[i] != expected {
-			t.Errorf("%s is missing: %#v", expected, subHeaders)
-		}
+	expected = []string{"Three-four"}
+	if !reflect.DeepEqual(subHeaders, expected) {
+		t.Errorf("Not equal:\n  %#v\n  %#v", subHeaders, expected)
 	}
 }
 
 func TestNames(t *testing.T) {
 	mdParser := NewMarkdownParser("Beginning Of Line. Аз съм Иван Петров. He Used to play games. His favourite browser is Firefox. That's Mozilla Firefox.")
 	names := mdParser.Names()
-	expected := []string{"Beginning Of", "Иван Петров", "Mozilla Firefox"}
+	expected := []string{"Of Line", "Иван Петров", "Mozilla Firefox"}
 
 	if !reflect.DeepEqual(names, expected) {
 		t.Errorf("Not equal:\n  %#v\n  %#v", names, expected)
@@ -143,27 +123,68 @@ func getSplitContents(tableOfContents string) []string {
 }
 
 func TestTableOfContents(t *testing.T) {
-	println("Pending: TestTableOfContents")
-	return
-
-	mdParser := NewMarkdownParser("")
+	mdParser := NewMarkdownParser(`
+# Path
+Нещо
+## Примери:
+Още нещо
+`)
 	tableOfContents := mdParser.GenerateTableOfContents()
 	splitContents := getSplitContents(tableOfContents)
-	if !reflect.DeepEqual(splitContents, []string{"1. Path", "1.1 Примери:"}) {
-		t.Fail()
+	expected := []string{
+		"1. Path",
+		"1.1 Примери:",
 	}
 
-	mdParser = NewMarkdownParser("")
-	tableOfContents = mdParser.GenerateTableOfContents()
-	splitContents = getSplitContents(tableOfContents)
-	if len(splitContents) != 7 || splitContents[3] != "1.3 Colors" {
-		t.Fail()
+	if !reflect.DeepEqual(splitContents, expected) {
+		t.Errorf("Not equal:\n  %#v\n  %#v", splitContents, expected)
 	}
 
-	mdParser = NewMarkdownParser("")
+	mdParser = NewMarkdownParser(`
+One
+====
+Two
+====
+## Three
+
+# Four
+Five
+----
+	`)
 	tableOfContents = mdParser.GenerateTableOfContents()
 	splitContents = getSplitContents(tableOfContents)
-	if len(splitContents) != 11 || splitContents[9] != "1.1.8 `func (mp *MarkdownParser) GenerateTableOfContents() string`" {
-		t.Fail()
+	expected = []string{
+		"1. One",
+		"2. Two",
+		"2.1 Three",
+		"3. Four",
+		"3.1 Five",
+	}
+
+	if !reflect.DeepEqual(splitContents, expected) {
+		t.Errorf("Not equal:\n  %#v\n  %#v", splitContents, expected)
+	}
+
+	mdParser = NewMarkdownParser(`
+# One
+## Two
+### Three
+#### Four
+##### Five
+###### Six
+	`)
+	tableOfContents = mdParser.GenerateTableOfContents()
+	splitContents = getSplitContents(tableOfContents)
+	expected = []string{
+		"1. One",
+		"1.1 Two",
+		"1.1.1 Three",
+		"1.1.1.1 Four",
+		"1.1.1.1.1 Five",
+		"1.1.1.1.1.1 Six",
+	}
+
+	if !reflect.DeepEqual(splitContents, expected) {
+		t.Errorf("Not equal:\n  %#v\n  %#v", splitContents, expected)
 	}
 }
