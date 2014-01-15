@@ -3,7 +3,7 @@ MarkdownParser
 
 В тази задача ще се наложи да парсваме [markdown](http://daringfireball.net/projects/markdown/) документи. За целта ще ви
 предоставим статия, написана на markdown, от която вие трябва да извлечете
-заглавия, линкове, имена и друга основни за статията неща.
+заглавия, линкове, имена и други основни за статията неща.
 
 
 type MarkdownParser
@@ -37,13 +37,13 @@ H3, H4, H5 и H6 хедъри не ни интересуват. Обърнете
 * Едсон Арантес Ду Насименто - Пеле
 * Mozilla Firefox
 
-__Забележка__: От првилото да игнорирате първата дума в изречение следва,
+_Забележка_: От правилото да игнорирате първата дума в изречение следва,
 че в изречението "Георги Кранев е много забавен." няма име.
 
 ### `func (mp *MarkdownParser) PhoneNumbers() []string`
 
 Връща всички телефонни номера в текста.
-Не се интересуваме от броя цифри, нито от префиските им
+Не се интересуваме от броя цифри, нито от префиксите им
 (демек не очакваме само български номера).
 Преди цифрите може да има плюс и отваряща скоба, а между тях - интервали, скоби и тирета.
 В този смисъл следните са телефонни номера:
@@ -88,9 +88,9 @@ __Забележка__: От првилото да игнорирате първ
 
     >>> mdParser := NewMarkdownParser(data)
     >>> mdParser.Headers()
-    <<< []string{"MarkdownParser"}
-    >>> mdParser.SubHeadersOf("MarkdownParser")
     <<< []string{"type MarkdownParser", "Пример"}
+    >>> mdParser.SubHeadersOf("Пример")
+    <<< []string{}
     >>> mdParser.GenerateTableOfContents()
     <<< 1. MarkdownParser
     <<< 1.1 type MarkdownParser
@@ -102,4 +102,4 @@ __Забележка__: От првилото да игнорирате първ
     <<< 1.1.6 `func (mp *MarkdownParser) Links() []string`
     <<< 1.1.7 `func (mp *MarkdownParser) Emails() []string`
     <<< 1.1.8 `func (mp *MarkdownParser) GenerateTableOfContents() string`
-    <<< 1.2. Пример
+    <<< 2. Пример
