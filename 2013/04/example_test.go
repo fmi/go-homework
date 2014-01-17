@@ -7,8 +7,8 @@ import (
 
 func TestAllStuck(t *testing.T) {
 	set := make(map[[2][2]int]bool)
-	for x := 0; x < 5; x++ {
-		for y := 0; y < 5; y++ {
+	for x := 0; x < 4; x++ {
+		for y := 0; y < 4; y++ {
 			var stuck = [2][2]int { { x, y }, { -2, -2 } }
 			set[stuck] = true
 		}
