@@ -7,7 +7,7 @@ import (
 
 func testOutput(t *testing.T, result []string, expected []string) {
 	if expected == nil && len(result) != 0 {
-		t.Fatalf("We expeced no output but got %+v", result)
+		t.Fatalf("We expected no output but got %+v", result)
 	}
 
 	if len(result) != len(expected) {
