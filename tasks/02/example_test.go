@@ -78,7 +78,7 @@ func (st *SusiTest) courseAlreadyExistsError(identifier string) string {
 }
 
 func (st *SusiTest) courseIsFullError(identifier string) string {
-	return fmt.Sprint("Няма свободни места за курс с identifier - %s!", identifier)
+	return fmt.Sprintf("Няма свободни места за курс с identifier - %s!", identifier)
 }
 
 func (st *SusiTest) enrollmentAlreadyExistsError(fn int, identifier string) string {
