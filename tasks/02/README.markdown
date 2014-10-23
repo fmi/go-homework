@@ -12,16 +12,16 @@ __Напишете функция, която да връща указател �
 ### Susi
 
 #### Елементи
-Ние няма да се интересуваме как съхранявате елементите в този тип и единственно ще неговите методи.
+Ние няма да се интересуваме как съхранявате елементите в този тип и единственно ще тестваме неговите методи.
 
 #### Методи
 
     func (s *Susi) AddStudent(request []byte) error
-    func (s *Susi) FindStudent(faculty_number int) (*Student, error)
+    func (s *Susi) FindStudent(facultyNumber int) (*Student, error)
     func (s *Susi) AddCourse(request []byte) error
-    func (s *Susi) FindCourse(course_identifier string) (*Course, error)
+    func (s *Susi) FindCourse(courseIdentifier string) (*Course, error)
     func (s *Susi) Enroll(request []byte)  error
-    func (s *Susi) FindEnrollment(faculty_number int, course_identifier string) (*Enrollment, error)
+    func (s *Susi) FindEnrollment(facultyNumber int, courseIdentifier string) (*Enrollment, error)
 
 _Подробно описание на методите ще откриете по-долу._
 
@@ -39,7 +39,7 @@ _Подробно описание на методите ще откриете �
 
     "AR Advanced Robotics"
 
-тоест - _course\_identifier course\_name_
+тоест - _courseIdentifier courseName_
 
 Този тип има следните полета:
 
@@ -89,7 +89,7 @@ _Подробно описание на методите ще откриете �
 
 _Използвайте [Unmarshal](http://golang.org/pkg/encoding/json/#Unmarshal)._
 
-### `func (s *Susi) FindCourse(course_identifier string) (*Course, error)`
+### `func (s *Susi) FindCourse(courseIdentifier string) (*Course, error)`
 Връща указател към обект от тип `Course`, ако в системата има курс с подадения identifier.
 Ако няма - връща грешка (виж валидация).
 
@@ -108,7 +108,7 @@ _Използвайте [Unmarshal](http://golang.org/pkg/encoding/json/#Unmarsh
 
 _Използвайте [Unmarshal](http://golang.org/pkg/encoding/json/#Unmarshal)._
 
-### `func (s *Susi) FindStudent(faculty_number int) (*Student, error)`
+### `func (s *Susi) FindStudent(facultyNumber int) (*Student, error)`
 Връща указател към обект от тип `Student`, ако в системата има студент с подадения факултетен номер.
 Ако няма - връща грешка (виж валидация).
 
@@ -132,8 +132,8 @@ __Валидациите се правят в следния ред:__
 
 _Използвайте [Unmarshal](http://golang.org/pkg/encoding/json/#Unmarshal)._
 
-### `func (s *Susi) FindEnrollment(faculty_number int, course_identifier string) (*Enrollment, error)`
-При подадени `faculty_number` и `course_identifier` трябва да върнете указател към обект от тип Enrollment, ако студента е записан за курса.
+### `func (s *Susi) FindEnrollment(facultyNumber int, courseIdentifier string) (*Enrollment, error)`
+При подадени `facultyNumber` и `courseIdentifier` трябва да върнете указател към обект от тип Enrollment, ако студента е записан за курса.
 Преди да проверите дали има enrollment за този студент в този курс, проверете:
 
 * Има ли студент?
@@ -144,7 +144,7 @@ _Използвайте [Unmarshal](http://golang.org/pkg/encoding/json/#Unmarsh
 
 * __Има вероятност да подадем невалиден json на `AddStudent`, `AddCourse` или `Enroll`. Ако получите грешка при Unmarshal-ването е редно просто да я върнете.__
 
-* Ако при добавяне на студент, такъв вече съществува (със същия `faculty_number`):
+* Ако при добавяне на студент, такъв вече съществува (със същия `facultyNumber`):
         "Студент с факултетен номер 12345 вече съществува!"
 
 * Ако търсеният студент не е наличен:
