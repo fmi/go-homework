@@ -298,3 +298,31 @@ func TestCourseImplementStringer(t *testing.T) {
 		t.Errorf("Course#String failed! Expected: %s, got: %s", expected, got)
 	}
 }
+
+func TestSusiErrorOnEnrollment(t *testing.T) {
+	st, s := newSusiTest()
+	err := st.AddStudents(s, 11111, 55555)
+	err = st.AddCourses(s, "MO", "AR")
+	err = st.Enroll(s, 11111, "MO")
+	if err == nil {
+		t.Error("Expected to recieve an error")
+	}
+
+	student, _ := s.FindStudent(11111)
+	course, _ := s.FindCourse("MO")
+
+	errorType := reflect.TypeOf(err).String()
+	if errorType != "*main.SusiError" && errorType != "*SusiError" {
+		t.Errorf("Expected error to be *main.SusiError, but was: %s", errorType)
+	}
+
+	susiErr := err.(*SusiError)
+
+	if susiErr.Course != course {
+		t.Errorf("Expected susiErr.Course to be %V, but was %V", course, susiErr.Course)
+	}
+
+	if susiErr.Student != student {
+		t.Errorf("Expected susiErr.Student to be %V, but was %V", student, susiErr.Student)
+	}
+}
