@@ -272,10 +272,6 @@ func TestStudentImplementStringer(t *testing.T) {
 	_ = st.AddStudents(s, 11111, 22222)
 	student, _ := s.FindStudent(11111)
 
-	if !reflect.TypeOf(student).Elem().Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
-		t.Error("Student doesn't implement Stringer!")
-	}
-
 	got := student.String()
 	expected := "11111 Test One"
 	if got != expected {
@@ -287,10 +283,6 @@ func TestCourseImplementStringer(t *testing.T) {
 	st, s := newSusiTest()
 	_ = st.AddCourses(s, "AR", "R101")
 	course, _ := s.FindCourse("AR")
-
-	if !reflect.TypeOf(course).Elem().Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
-		t.Error("Course doesn't implement Stringer!")
-	}
 
 	got := course.String()
 	expected := "AR Advanced Robotics"
