@@ -82,7 +82,7 @@ func (st *SusiTest) courseIsFullError(identifier string) string {
 }
 
 func (st *SusiTest) enrollmentAlreadyExistsError(fn int, identifier string) string {
-	return fmt.Sprintf("Студент с факултетен номер %d е вече записан за курс с identifier %s!", fn, identifier)
+	return fmt.Sprintf("Студент с факултетен номер %d вече е записан за курс с identifier %s!", fn, identifier)
 }
 
 func (st *SusiTest) enrollmentNotFoundError(fn int, identifier string) string {
