@@ -272,7 +272,7 @@ func TestStudentImplementStringer(t *testing.T) {
 	_ = st.AddStudents(s, 11111, 22222)
 	student, _ := s.FindStudent(11111)
 
-	if reflect.TypeOf(student).Elem().Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
+	if !reflect.TypeOf(student).Elem().Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
 		t.Error("Student doesn't implement Stringer!")
 	}
 
