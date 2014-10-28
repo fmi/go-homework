@@ -15,6 +15,7 @@ func newSusiTest() (*SusiTest, *Susi) {
 	st := new(SusiTest)
 	st.students = map[int][]byte{
 		11111: []byte(`{"faculty_number":11111,"first_name":"Test","last_name":"One","master":false,"academic_year":1}`),
+		11112: []byte(`{"faculty_number":11111,"first_name":"Wrong","last_name":"One","master":false,"academic_year":1}`),
 		22222: []byte(`{"faculty_number":22222,"first_name":"Test","last_name":"Two","master":false,"academic_year":2}`),
 		33333: []byte(`{"faculty_number":33333,"first_name":"Test","last_name":"Three","master":false,"academic_year":3}`),
 		44444: []byte(`{"faculty_number":44444,"first_name":"Test","last_name":"Four","master":false,"academic_year":4}`),
@@ -25,6 +26,7 @@ func newSusiTest() (*SusiTest, *Susi) {
 		"AR":   []byte(`{"course_name":"Advanced Robotics","course_identifier":"AR","minimum_academic_year":3,"masters_only":false,"available_places":2}`),
 		"R101": []byte(`{"course_name":"Robotics 101","course_identifier":"R101","minimum_academic_year":1,"masters_only":false,"available_places":2}`),
 		"MO":   []byte(`{"course_name":"Masters Only","course_identifier":"MO","minimum_academic_year":0,"masters_only":true,"available_places":2}`),
+		"MO2":  []byte(`{"course_name":"Masters Only Wrong","course_identifier":"MO","minimum_academic_year":0,"masters_only":true,"available_places":2}`),
 		"FC":   []byte(`{"course_name":"Full Course","course_identifier":"FC","minimum_academic_year":0,"masters_only":false,"available_places":0}`),
 	}
 
@@ -293,8 +295,8 @@ func TestCourseImplementStringer(t *testing.T) {
 
 func TestSusiErrorOnEnrollment(t *testing.T) {
 	st, s := newSusiTest()
-	err := st.AddStudents(s, 11111, 55555)
-	err = st.AddCourses(s, "MO", "AR")
+	err := st.AddStudents(s, 11112, 55555)
+	err = st.AddCourses(s, "MO2", "AR")
 	err = st.Enroll(s, 11111, "MO")
 	if err == nil {
 		t.Error("Expected to recieve an error")
@@ -310,11 +312,11 @@ func TestSusiErrorOnEnrollment(t *testing.T) {
 
 	susiErr := err.(*SusiError)
 
-	if susiErr.Course != course {
+	if susiErr.Course.CourseIdentifier != course.CourseIdentifier || susiErr.Course.CourseName != course.CourseName {
 		t.Errorf("Expected susiErr.Course to be %V, but was %V", course, susiErr.Course)
 	}
 
-	if susiErr.Student != student {
+	if susiErr.Student.FacultyNumber != student.FacultyNumber || susiErr.Student.FirstName != student.FirstName {
 		t.Errorf("Expected susiErr.Student to be %V, but was %V", student, susiErr.Student)
 	}
 }
