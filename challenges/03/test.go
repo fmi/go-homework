@@ -37,3 +37,35 @@ func TestLateToTheParty(t *testing.T) {
 		t.Errorf("Expected listeners registered later to not recieve the message, but the listener recieved %v", result)
 	}
 }
+
+
+func listen(listener <-chan int, id int) chan int {
+	newChannel := make(chan int)
+
+	go func() {
+		for {
+			_ = <-listener
+			newChannel <- id
+		}
+	}()
+
+	return newChannel
+}
+
+func TestOnlyOneToRuleThemAll(t *testing.T) {
+
+	b := NewBroadcaster()
+	listener1 := listen(b.Register(), 1)
+	b.Send() <- 100
+	time.Sleep(102 * time.Millisecond)
+	listener2 := listen(b.Register(), 2)
+	var res int
+	select {
+	case res = <-listener1:
+	case res = <-listener2:
+	}
+
+	if res != 1 {
+		t.Errorf("Expected  first lestner to recieve the message", res)
+	}
+}
