@@ -27,7 +27,7 @@ Concurrent Crawling
         urls <- []string{"http://www.google.com", "invalid.url....", "http://en.wikipedia.org/wiki/Lorem_ipsum"}
     }()
 
-    callback := func(contents string) bool {с
+    callback := func(contents string) bool {
         return strings.Contains(contents, "Lorem ipsum")
     }
 
