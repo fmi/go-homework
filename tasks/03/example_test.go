@@ -135,7 +135,7 @@ func ExampleTakeBook() {
 
 	reqChan, respChan := l.Hello()
 
-	reqChan <- &ExampleTestLibraryRequest{test_books["anno"]["isbn"], TestTakeBook}
+	reqChan <- &ExampleTestLibraryRequest{test_books["anno"]["isbn"], ExampleTestTakeBook}
 
 	response = <-respChan
 
