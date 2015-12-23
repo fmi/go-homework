@@ -85,3 +85,6 @@ func (fr *fakeRequest) SetResult(result interface{}, err error) {
 	fr.alreadyRan = true
 	fr.setResult(result, err)
 }
+
+func okSetResult(result interface{}, err error) {
+}
