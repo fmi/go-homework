@@ -1,6 +1,22 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
+
+func fatalRun(t *testing.T, msg string) func() (interface{}, error) {
+	return func() (interface{}, error) {
+		t.Fatal(msg)
+		return nil, nil
+	}
+}
+
+func fatalSetResult(t *testing.T, msg string) func(interface{}, error) {
+	return func(_ interface{}, _ error) {
+		t.Fatal(msg)
+	}
+}
 
 func TestNewRequesterAndStop(t *testing.T) {
 	var requester Requester = NewRequester(10, 10)
@@ -87,4 +103,105 @@ func (r *request) SetResult(result interface{}, err error) {
 }
 
 func okSetResult(result interface{}, err error) {
+}
+
+func TestStopWithQueueFromForum(t *testing.T) {
+	t.Parallel()
+	var (
+		requester    = NewRequester(1000, 2)
+		r1Started    = make(chan struct{})
+		r1Continue   = make(chan struct{})
+		r1Finished   = make(chan struct{})
+		r2SetResult  = make(chan struct{})
+		r4Started    = make(chan struct{})
+		r4Continue   = make(chan struct{})
+		r4Finished   = make(chan struct{})
+		stopStarted  = make(chan struct{})
+		stopFinished = make(chan struct{})
+	)
+	r1 := &request{ // Should Run
+		id:        "a",
+		cacheable: true,
+		run: func() (interface{}, error) {
+			close(r1Started)
+			<-r1Continue
+			defer close(r1Finished)
+			return "result1", nil
+		},
+		setResult: fatalSetResult(t, "r4 should be runned not SetResulted"),
+	}
+
+	r2 := &request{
+		id:        "a",
+		cacheable: true,
+		run:       fatalRun(t, "r3 should not be Ran as it should be cached"),
+		setResult: func(_ interface{}, _ error) {
+			close(r2SetResult)
+		},
+	}
+
+	r3 := &request{
+		id:        "a",
+		cacheable: false,
+		run:       fatalRun(t, "r3 should not be Ran as it should be cached"),
+		setResult: fatalSetResult(t, "r3 should not be set resulted after Stop"),
+	}
+
+	r4 := &request{
+		id:        "b",
+		cacheable: false,
+		run: func() (interface{}, error) {
+			close(r4Started)
+			<-r4Continue
+			defer close(r4Finished)
+			return "result4", nil
+		},
+		setResult: fatalSetResult(t, "r4 should be runned not SetResulted"),
+	}
+
+	r5 := &request{
+		id:        "b",
+		cacheable: false,
+		run:       fatalRun(t, "r5 should've not run as it should be cached"),
+		setResult: fatalSetResult(t, "r5 should've not been setResulted as it's non cacheable"),
+	}
+
+	r6 := &request{
+		id:        "c",
+		cacheable: true,
+		run:       fatalRun(t, "r6 should not be Ran after Stop"),
+		setResult: fatalSetResult(t, "r6 should not be SetResulted,  after Stop"),
+	}
+
+	r7 := &request{
+		id:        "d",
+		cacheable: true,
+		run:       fatalRun(t, "r7 should not be Run after Stop"),
+		setResult: fatalSetResult(t, "r7 should not be SetResulted after Stop"),
+	}
+
+	go requester.AddRequest(r1)
+	go requester.AddRequest(r4)
+	<-r1Started
+	<-r4Started
+	go requester.AddRequest(r2)
+	go requester.AddRequest(r5)
+	time.Sleep(100 * time.Millisecond)
+	go func() {
+		close(stopStarted)
+		requester.Stop()
+		close(stopFinished)
+	}()
+	<-stopStarted
+	time.Sleep(100 * time.Millisecond)
+	go requester.AddRequest(r6)
+	go requester.AddRequest(r3)
+	time.Sleep(100 * time.Millisecond)
+	close(r1Continue)
+	close(r4Continue)
+	<-r1Finished
+	<-r4Finished
+	<-r2SetResult
+	go requester.AddRequest(r7)
+	time.Sleep(200 * time.Millisecond)
 }
