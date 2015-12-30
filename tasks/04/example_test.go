@@ -14,8 +14,8 @@ func TestAddRequestRunsARequest(t *testing.T) {
 	var requester = NewRequester(10, 10)
 	defer requester.Stop()
 	var ran = make(chan struct{})
-	fr := &fakeRequest{
-		id:        "fakeId",
+	r := &request{
+		id:        "a",
 		cacheable: true,
 		run: func() (interface{}, error) {
 			close(ran)
@@ -23,7 +23,7 @@ func TestAddRequestRunsARequest(t *testing.T) {
 		},
 		setResult: okSetResult,
 	}
-	requester.AddRequest(fr)
+	requester.AddRequest(r)
 	<-ran
 }
 
@@ -32,17 +32,17 @@ func TestNonCacheableRequests(t *testing.T) {
 	defer requester.Stop()
 	var expected1, expected2 = "foo", "bar"
 	var setted = make(chan struct{})
-	fr := &fakeRequest{
-		id:        "fakeId",
+	r := &request{
+		id:        "a",
 		cacheable: false,
 		run: func() (interface{}, error) {
 			return expected1, nil
 		},
 		setResult: nil,
 	}
-	requester.AddRequest(fr)
-	fr = &fakeRequest{
-		id:        "fakeId",
+	requester.AddRequest(r)
+	r = &request{
+		id:        "a",
 		cacheable: false,
 		run: func() (interface{}, error) {
 			defer close(setted)
@@ -50,11 +50,11 @@ func TestNonCacheableRequests(t *testing.T) {
 		},
 		setResult: nil,
 	}
-	requester.AddRequest(fr)
+	requester.AddRequest(r)
 	<-setted
 }
 
-type fakeRequest struct {
+type request struct {
 	id         string
 	cacheable  bool
 	alreadyRan bool
@@ -62,28 +62,28 @@ type fakeRequest struct {
 	setResult  func(interface{}, error)
 }
 
-func (fr *fakeRequest) ID() string {
-	return fr.id
+func (r *request) ID() string {
+	return r.id
 }
 
-func (fr *fakeRequest) Run() (interface{}, error) {
-	if fr.alreadyRan {
+func (r *request) Run() (interface{}, error) {
+	if r.alreadyRan {
 		panic("Run after Run or SetResult")
 	}
-	fr.alreadyRan = true
-	return fr.run()
+	r.alreadyRan = true
+	return r.run()
 }
 
-func (fr *fakeRequest) Cacheable() bool {
-	return fr.cacheable
+func (r *request) Cacheable() bool {
+	return r.cacheable
 }
 
-func (fr *fakeRequest) SetResult(result interface{}, err error) {
-	if fr.alreadyRan {
+func (r *request) SetResult(result interface{}, err error) {
+	if r.alreadyRan {
 		panic("SetResult after Run or SetResult")
 	}
-	fr.alreadyRan = true
-	fr.setResult(result, err)
+	r.alreadyRan = true
+	r.setResult(result, err)
 }
 
 func okSetResult(result interface{}, err error) {
