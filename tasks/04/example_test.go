@@ -5,6 +5,40 @@ import (
 	"time"
 )
 
+type request struct {
+	id         string
+	cacheable  bool
+	alreadyRan bool
+	run        func() (interface{}, error)
+	setResult  func(interface{}, error)
+}
+
+func (r *request) ID() string {
+	return r.id
+}
+
+func (r *request) Run() (interface{}, error) {
+	if r.alreadyRan {
+		panic("Run after Run or SetResult")
+	}
+	r.alreadyRan = true
+	return r.run()
+}
+
+func (r *request) Cacheable() bool {
+	return r.cacheable
+}
+
+func (r *request) SetResult(result interface{}, err error) {
+	if r.alreadyRan {
+		panic("SetResult after Run or SetResult")
+	}
+	r.alreadyRan = true
+	r.setResult(result, err)
+}
+
+func okSetResult(result interface{}, err error) {}
+
 func fatalRun(t *testing.T, msg string) func() (interface{}, error) {
 	return func() (interface{}, error) {
 		t.Fatal(msg)
@@ -69,42 +103,6 @@ func TestNonCacheableRequests(t *testing.T) {
 	requester.AddRequest(r)
 	<-setted
 }
-
-type request struct {
-	id         string
-	cacheable  bool
-	alreadyRan bool
-	run        func() (interface{}, error)
-	setResult  func(interface{}, error)
-}
-
-func (r *request) ID() string {
-	return r.id
-}
-
-func (r *request) Run() (interface{}, error) {
-	if r.alreadyRan {
-		panic("Run after Run or SetResult")
-	}
-	r.alreadyRan = true
-	return r.run()
-}
-
-func (r *request) Cacheable() bool {
-	return r.cacheable
-}
-
-func (r *request) SetResult(result interface{}, err error) {
-	if r.alreadyRan {
-		panic("SetResult after Run or SetResult")
-	}
-	r.alreadyRan = true
-	r.setResult(result, err)
-}
-
-func okSetResult(result interface{}, err error) {
-}
-
 func TestStopWithQueueFromForum(t *testing.T) {
 	t.Parallel()
 	var (
