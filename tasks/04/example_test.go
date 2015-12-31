@@ -105,7 +105,6 @@ func TestNonCacheableRequests(t *testing.T) {
 }
 
 func TestStopWithQueueFromForum(t *testing.T) {
-	t.Parallel()
 	var (
 		requester    = NewRequester(1000, 2)
 		r1Started    = make(chan struct{})
