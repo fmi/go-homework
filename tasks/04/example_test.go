@@ -103,6 +103,7 @@ func TestNonCacheableRequests(t *testing.T) {
 	requester.AddRequest(r)
 	<-setted
 }
+
 func TestStopWithQueueFromForum(t *testing.T) {
 	t.Parallel()
 	var (
@@ -132,7 +133,7 @@ func TestStopWithQueueFromForum(t *testing.T) {
 	r2 := &request{
 		id:        "a",
 		cacheable: true,
-		run:       fatalRun(t, "r3 should not be Ran as it should be cached"),
+		run:       fatalRun(t, "r2 should not be runned as it should be cached"),
 		setResult: func(_ interface{}, _ error) {
 			close(r2SetResult)
 		},
@@ -141,8 +142,8 @@ func TestStopWithQueueFromForum(t *testing.T) {
 	r3 := &request{
 		id:        "a",
 		cacheable: false,
-		run:       fatalRun(t, "r3 should not be Ran as it should be cached"),
-		setResult: fatalSetResult(t, "r3 should not be set resulted after Stop"),
+		run:       fatalRun(t, "r3 should not be runned as it should be cached"),
+		setResult: fatalSetResult(t, "r3 should not be SetResulterd, as it was added after Stop"),
 	}
 
 	r4 := &request{
@@ -160,14 +161,14 @@ func TestStopWithQueueFromForum(t *testing.T) {
 	r5 := &request{
 		id:        "b",
 		cacheable: false,
-		run:       fatalRun(t, "r5 should've not run as it should be cached"),
-		setResult: fatalSetResult(t, "r5 should've not been setResulted as it's non cacheable"),
+		run:       fatalRun(t, "r5 should've not Run after Stop"),
+		setResult: fatalSetResult(t, "r5 should've not been SetResulted as it's non cacheable"),
 	}
 
 	r6 := &request{
 		id:        "c",
 		cacheable: true,
-		run:       fatalRun(t, "r6 should not be Ran after Stop"),
+		run:       fatalRun(t, "r6 should not be Run after Stop"),
 		setResult: fatalSetResult(t, "r6 should not be SetResulted,  after Stop"),
 	}
 
@@ -175,7 +176,7 @@ func TestStopWithQueueFromForum(t *testing.T) {
 		id:        "d",
 		cacheable: true,
 		run:       fatalRun(t, "r7 should not be Run after Stop"),
-		setResult: fatalSetResult(t, "r7 should not be SetResulted after Stop"),
+		setResult: fatalSetResult(t, "r7 should not be SetResulted, after Stop"),
 	}
 
 	go requester.AddRequest(r1)
