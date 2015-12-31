@@ -160,7 +160,7 @@ func TestStopWithQueueFromForum(t *testing.T) {
 	r5 := &request{
 		id:        "b",
 		cacheable: false,
-		run:       fatalRun(t, "r5 should've not run as it should be cached"),
+		run:       func() (interface{}, error) { return nil, nil },
 		setResult: fatalSetResult(t, "r5 should've not been setResulted as it's non cacheable"),
 	}
 
