@@ -42,6 +42,10 @@ type GameOfLifeHandler struct {
 	// map of living cells against write operations from different threads.
 	sync.RWMutex
 
+	// writeMutex is used for synchronizing operations which change the current board during
+	// the change.
+	writeMutex sync.Mutex
+
 	// This handler multiplexer is used to decompose the task in different handlers for
 	// each path defined in the task.
 	mux *http.ServeMux
@@ -124,6 +128,7 @@ func (gofh *GameOfLifeHandler) handleEvolve(w http.ResponseWriter, r *http.Reque
 	// a new board is created. Every cell which should be alive in the next generation will
 	// be added to this new board.
 	newBoard := make(map[Cell]struct{})
+	oldBoard := make(map[Cell]struct{})
 
 	// One of the rules says we have to spawn dead cells with appropriate number of neighbours.
 	// We have to decide which dead cells to consider for spawning. Obviosuly, we cannot try
@@ -132,22 +137,28 @@ func (gofh *GameOfLifeHandler) handleEvolve(w http.ResponseWriter, r *http.Reque
 	// Note that are using a map in order to remove any duplications.
 	interestingDead := make(map[Cell]struct{})
 
-	gofh.Lock()
-	defer gofh.Unlock()
-
 	// A small helper function which counts how many of the cells in the argument are alive.
 	livingCells := func(neighbours [8]Cell) (count uint8) {
 		for _, nbr := range neighbours {
-			if _, ok := gofh.cells[nbr]; ok {
+			if _, ok := oldBoard[nbr]; ok {
 				count += 1
 			}
 		}
 		return
 	}
 
+	gofh.writeMutex.Lock()
+	defer gofh.writeMutex.Unlock()
+
+	gofh.RLock()
+	for aliveCell, _ := range gofh.cells {
+		oldBoard[aliveCell] = struct{}{}
+	}
+	gofh.RUnlock()
+
 	// First pass. We decide which alive cells should live to see the next generation and
 	// simultaniously populate the interestingDead map.
-	for aliveCell, _ := range gofh.cells {
+	for aliveCell, _ := range oldBoard {
 		neighbours := aliveCell.Neighbours()
 		livingCount := livingCells(neighbours)
 
@@ -169,6 +180,9 @@ func (gofh *GameOfLifeHandler) handleEvolve(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
+	gofh.Lock()
+	defer gofh.Unlock()
+
 	// And it is here when we make the switch.
 	gofh.cells = newBoard
 	gofh.generation += 1
@@ -176,6 +190,9 @@ func (gofh *GameOfLifeHandler) handleEvolve(w http.ResponseWriter, r *http.Reque
 }
 
 func (gofh *GameOfLifeHandler) handleReset(w http.ResponseWriter, r *http.Request) {
+	gofh.writeMutex.Lock()
+	defer gofh.writeMutex.Unlock()
+
 	gofh.Lock()
 	defer gofh.Unlock()
 
@@ -203,6 +220,9 @@ func (gofh *GameOfLifeHandler) handleAddCells(w http.ResponseWriter, r *http.Req
 		fmt.Fprintf(w, "Error unmarshalling the request body: %s", err)
 		return
 	}
+
+	gofh.writeMutex.Lock()
+	defer gofh.writeMutex.Unlock()
 
 	gofh.Lock()
 	defer gofh.Unlock()
