@@ -36,11 +36,13 @@ type Task interface {
         ```
     Ето и как очакваме да се държи върнатия от `Pipeline()` тип:
 
+        ```
         if res, err := Pipeline(adder{50}, adder{60}).Execute(10); err != nil {
             fmt.Printf("The pipeline returned an error\n")
         } else {
             fmt.Printf("The pipeline returned %d\n", res)
         }
+        ```
 
 
     Това би трябвало да изведе "The pipeline returned 120". Но ако имахме `Pipeline(adder{20}, adder{10}, adder{-50}).Execute(100)`, би трябвало да получим на екрана "The pipeline returned an error".
@@ -67,12 +69,14 @@ type Task interface {
         ```
     би трябвало да получим 42 от следния код:
 
+        ```
         f := Fastest(
             lazyAdder{adder{20}, 500},
             lazyAdder{adder{50}, 300},
             adder{41},
         )
         f.Execute(1)
+        ```
 
 3. Функция `Timed(task Task, timeout time.Duration) Task` със следните свойства:
 
