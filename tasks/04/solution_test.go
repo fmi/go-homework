@@ -48,12 +48,17 @@ func TestSingleURLWithReturn(t *testing.T) {
 			w.Header().Add("Content-Length", strconv.Itoa(len(resp)))
 			w.WriteHeader(200)
 		case http.MethodGet:
-			requestRange := req.Header.Get("Range")
-			start, end := parseRange(requestRange)
-			currentResp := resp[start : end+1]
-			w.Header().Add("Response-Range", requestRange)
+			var currentResp = resp
+			var statusCode = 200
+			if _, ok := req.Header["Range"]; ok {
+				requestRange := req.Header.Get("Range")
+				start, end := parseRange(requestRange)
+				currentResp = resp[start : end+1]
+				w.Header().Add("Response-Range", requestRange)
+				statusCode = 206
+			}
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
-			w.WriteHeader(206)
+			w.WriteHeader(statusCode)
 			n, err := w.Write(currentResp)
 			if n != len(currentResp) {
 				t.Errorf("Wrote %d not %d as expected", n, len(currentResp))
@@ -107,15 +112,20 @@ func TestReturnOnly10Bytes(t *testing.T) {
 			w.WriteHeader(200)
 		case http.MethodGet:
 			if atomic.CompareAndSwapInt32(&called, 0, 1) {
-				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
-				if start != 0 {
-					t.Errorf("Expected to get one request from 0 to end got start %d", start)
+				var currentResp = resp
+				var statusCode = 200
+				if _, ok := req.Header["Range"]; ok {
+					requestRange := req.Header.Get("Range")
+					start, end := parseRange(requestRange)
+					if start != 0 {
+						t.Errorf("Expected to get one request from 0 to end got start %d", start)
+					}
+					currentResp = resp[start : end+1]
+					w.Header().Add("Response-Range", requestRange)
+					statusCode = 206
 				}
-				currentResp := resp[start:end]
-				w.Header().Add("Response-Range", requestRange)
 				w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
-				w.WriteHeader(206)
+				w.WriteHeader(statusCode)
 				// write only some bytes on purpose
 				n, err := w.Write(currentResp[:bytesToReturn])
 				if n != bytesToReturn {
@@ -158,9 +168,15 @@ func TestTwoUrls(t *testing.T) {
 			w.Header().Add("Content-Length", strconv.Itoa(len(resp)))
 			w.WriteHeader(200)
 		case http.MethodGet:
-			requestRange := req.Header.Get("Range")
-			start, end := parseRange(requestRange)
-			currentResp := resp[start : end+1]
+			var statusCode = 200
+			var currentResp = resp
+			if _, ok := req.Header["Range"]; ok {
+				requestRange := req.Header.Get("Range")
+				start, end := parseRange(requestRange)
+				currentResp = resp[start : end+1]
+				w.Header().Add("Response-Range", requestRange)
+				statusCode = 206
+			}
 			switch req.URL.Path {
 			case "/pesho":
 				atomic.AddInt32(&pesho, int32(len(currentResp)))
@@ -168,9 +184,8 @@ func TestTwoUrls(t *testing.T) {
 				atomic.AddInt32(&pesho2, int32(len(currentResp)))
 			}
 
-			w.Header().Add("Response-Range", requestRange)
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
-			w.WriteHeader(206)
+			w.WriteHeader(statusCode)
 			n, err := w.Write(currentResp)
 			if n != len(currentResp) {
 				t.Errorf("Wrote %d not %d as expected", n, len(currentResp))
@@ -217,13 +232,17 @@ func TestTwoUrlsWithOneBroken(t *testing.T) {
 			w.Header().Add("Content-Length", strconv.Itoa(len(resp)))
 			w.WriteHeader(200)
 		case http.MethodGet:
-			requestRange := req.Header.Get("Range")
-			start, end := parseRange(requestRange)
-			currentResp := resp[start : end+1]
-
-			w.Header().Add("Response-Range", requestRange)
+			var statusCode = 200
+			var currentResp = resp
+			if _, ok := req.Header["Range"]; ok {
+				requestRange := req.Header.Get("Range")
+				start, end := parseRange(requestRange)
+				currentResp = resp[start : end+1]
+				w.Header().Add("Response-Range", requestRange)
+				statusCode = 206
+			}
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
-			w.WriteHeader(206)
+			w.WriteHeader(statusCode)
 			n, err := w.Write(currentResp)
 			if n != len(currentResp) {
 				t.Errorf("Wrote %d not %d as expected", n, len(currentResp))
@@ -262,9 +281,15 @@ func TestTwoUrlsOneStopRespondingAfter5bytes(t *testing.T) {
 			w.Header().Add("Content-Length", strconv.Itoa(len(resp)))
 			w.WriteHeader(200)
 		case http.MethodGet:
-			requestRange := req.Header.Get("Range")
-			start, end := parseRange(requestRange)
-			currentResp := resp[start : end+1]
+			var statusCode = 200
+			var currentResp = resp
+			if _, ok := req.Header["Range"]; ok {
+				requestRange := req.Header.Get("Range")
+				start, end := parseRange(requestRange)
+				currentResp = resp[start : end+1]
+				w.Header().Add("Response-Range", requestRange)
+				statusCode = 206
+			}
 			switch req.URL.Path {
 			case "/pesho":
 				currentResp = currentResp[:returnMaxBytes]
@@ -276,9 +301,8 @@ func TestTwoUrlsOneStopRespondingAfter5bytes(t *testing.T) {
 				atomic.AddInt32(&pesho2, int32(len(currentResp)))
 			}
 
-			w.Header().Add("Response-Range", requestRange)
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
-			w.WriteHeader(206)
+			w.WriteHeader(statusCode)
 			n, err := w.Write(currentResp)
 			if n != len(currentResp) {
 				t.Errorf("Wrote %d not %d as expected", n, len(currentResp))
@@ -334,9 +358,15 @@ func TestThreeUrlsOneOfWhichReturns1byteAtATimeOneOfWhichBreaksAfter2bytes(t *te
 			w.Header().Add("Content-Length", strconv.Itoa(len(resp)))
 			w.WriteHeader(200)
 		case http.MethodGet:
-			requestRange := req.Header.Get("Range")
-			start, end := parseRange(requestRange)
-			currentResp := resp[start : end+1]
+			var statusCode = 200
+			var currentResp = resp
+			if _, ok := req.Header["Range"]; ok {
+				requestRange := req.Header.Get("Range")
+				start, end := parseRange(requestRange)
+				currentResp = resp[start : end+1]
+				w.Header().Add("Response-Range", requestRange)
+				statusCode = 206
+			}
 			switch req.URL.Path {
 			case "/pesho":
 				currentResp = currentResp[:returnMaxBytes]
@@ -351,9 +381,8 @@ func TestThreeUrlsOneOfWhichReturns1byteAtATimeOneOfWhichBreaksAfter2bytes(t *te
 				atomic.AddInt32(&pesho3, int32(len(currentResp)))
 			}
 
-			w.Header().Add("Response-Range", requestRange)
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
-			w.WriteHeader(206)
+			w.WriteHeader(statusCode)
 			n, err := w.Write(currentResp)
 			if n != len(currentResp) {
 				t.Errorf("Wrote %d not %d as expected", n, len(currentResp))
@@ -417,13 +446,18 @@ func TestSingleURL1ByteARequest(t *testing.T) {
 			w.Header().Add("Content-Length", strconv.Itoa(len(resp)))
 			w.WriteHeader(200)
 		case http.MethodGet:
-			requestRange := req.Header.Get("Range")
-			start, end := parseRange(requestRange)
-			currentResp := resp[start : end+1]
+			var statusCode = 200
+			var currentResp = resp
+			if _, ok := req.Header["Range"]; ok {
+				requestRange := req.Header.Get("Range")
+				start, end := parseRange(requestRange)
+				currentResp = resp[start : end+1]
+				w.Header().Add("Response-Range", requestRange)
+				statusCode = 206
+			}
 			currentResp = currentResp[:1]
-			w.Header().Add("Response-Range", requestRange)
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
-			w.WriteHeader(206)
+			w.WriteHeader(statusCode)
 			n, err := w.Write(currentResp)
 			if n != len(currentResp) {
 				t.Errorf("Wrote %d not %d as expected", n, len(currentResp))
