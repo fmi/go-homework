@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,6 +24,12 @@ func parseRange(s string) (start, end int) {
 
 func responseRangeHeaderValue(start, end, size int) string {
 	return fmt.Sprintf("bytes %d-%d/%d", start, end, size)
+}
+
+func checkResponse(t *testing.T, expected, got []byte) {
+	if !bytes.Equal(expected, got) {
+		t.Errorf("Expected result was '%s' but got '%s'", hex.EncodeToString(expected), hex.EncodeToString(got))
+	}
 }
 
 // Test nothing to return
@@ -85,9 +92,7 @@ func TestSingleURLWithReturn(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	if !bytes.Equal(resp, buf.Bytes()[:n]) {
-		t.Errorf("Expected result was '%s' but got '%s'", resp, buf.Bytes()[:n])
-	}
+	checkResponse(t, resp, buf.Bytes()[:n])
 }
 
 // Test no valid urls
@@ -157,9 +162,7 @@ func TestReturnOnly10Bytes(t *testing.T) {
 		t.Errorf("Expected to get  error with message '%s', but got '%s'", noValidUrls, err)
 	}
 
-	if !bytes.Equal(resp[:bytesToReturn], buf.Bytes()[:n]) {
-		t.Errorf("Expected result was '%s' but got '%s'", resp, buf.Bytes()[:n])
-	}
+	checkResponse(t, resp[:bytesToReturn], buf.Bytes()[:n])
 }
 
 // Test simple case with two urls
@@ -212,9 +215,7 @@ func TestTwoUrls(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	if !bytes.Equal(resp, buf.Bytes()[:n]) {
-		t.Errorf("Expected result was '%s' but got '%s'", resp, buf.Bytes()[:n])
-	}
+	checkResponse(t, resp, buf.Bytes()[:n])
 	if int64(pesho+pesho2) != n {
 		t.Errorf("It was expected that the downloaded amount from both urls "+
 			" will be equal to the size of the request but while it was %d, "+
@@ -269,9 +270,7 @@ func TestTwoUrlsWithOneBroken(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	if !bytes.Equal(resp, buf.Bytes()[:n]) {
-		t.Errorf("Expected result was '%s' but got '%s'", resp, buf.Bytes()[:n])
-	}
+	checkResponse(t, resp, buf.Bytes()[:n])
 }
 
 // Test simple case with two urls one of which stops responding after the first 5 bytes
@@ -330,9 +329,7 @@ func TestTwoUrlsOneStopRespondingAfter5bytes(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	if !bytes.Equal(resp, buf.Bytes()[:n]) {
-		t.Errorf("Expected result was '%s' but got '%s'", resp, buf.Bytes()[:n])
-	}
+	checkResponse(t, resp, buf.Bytes()[:n])
 
 	if int64(pesho+pesho2) != n {
 		t.Errorf("It was expected that the downloaded amount from both urls "+
@@ -415,9 +412,7 @@ func TestThreeUrlsOneOfWhichReturns1byteAtATimeOneOfWhichBreaksAfter2bytes(t *te
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	if !bytes.Equal(resp, buf.Bytes()[:n]) {
-		t.Errorf("Expected result was '%s' but got '%s'", resp, buf.Bytes()[:n])
-	}
+	checkResponse(t, resp, buf.Bytes()[:n])
 
 	if int64(pesho+pesho2+pesho3) != n {
 		t.Errorf("It was expected that the downloaded amount from both urls "+
@@ -484,9 +479,7 @@ func TestSingleURL1ByteARequest(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	if !bytes.Equal(resp, buf.Bytes()[:n]) {
-		t.Errorf("Expected result was '%s' but got '%s'", resp, buf.Bytes()[:n])
-	}
+	checkResponse(t, resp, buf.Bytes()[:n])
 }
 
 func abs32(a int32) int32 {
