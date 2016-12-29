@@ -17,8 +17,12 @@ var noValidUrls = "no valid urls"
 var nonExistingURL = "http://some.non.existing.domain.at.nowhere/pesho"
 
 func parseRange(s string) (start, end int) {
-	fmt.Sscanf(s, "%d-%d", &start, &end)
+	fmt.Sscanf(s, "bytes=%d-%d", &start, &end)
 	return
+}
+
+func responseRangeHeaderValue(start, end, size int) string {
+	return fmt.Sprintf("bytes %d-%d/%d", start, end, size)
 }
 
 // Test nothing to return
@@ -54,7 +58,7 @@ func TestSingleURLWithReturn(t *testing.T) {
 				requestRange := req.Header.Get("Range")
 				start, end := parseRange(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Response-Range", requestRange)
+				w.Header().Add("Response-Range", responseRangeHeaderValue(start, end, len(resp)))
 				statusCode = 206
 			}
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
@@ -121,7 +125,7 @@ func TestReturnOnly10Bytes(t *testing.T) {
 						t.Errorf("Expected to get one request from 0 to end got start %d", start)
 					}
 					currentResp = resp[start : end+1]
-					w.Header().Add("Response-Range", requestRange)
+					w.Header().Add("Response-Range", responseRangeHeaderValue(start, end, len(resp)))
 					statusCode = 206
 				}
 				w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
@@ -174,7 +178,7 @@ func TestTwoUrls(t *testing.T) {
 				requestRange := req.Header.Get("Range")
 				start, end := parseRange(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Response-Range", requestRange)
+				w.Header().Add("Response-Range", responseRangeHeaderValue(start, end, len(resp)))
 				statusCode = 206
 			}
 			switch req.URL.Path {
@@ -238,7 +242,7 @@ func TestTwoUrlsWithOneBroken(t *testing.T) {
 				requestRange := req.Header.Get("Range")
 				start, end := parseRange(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Response-Range", requestRange)
+				w.Header().Add("Response-Range", responseRangeHeaderValue(start, end, len(resp)))
 				statusCode = 206
 			}
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
@@ -287,7 +291,7 @@ func TestTwoUrlsOneStopRespondingAfter5bytes(t *testing.T) {
 				requestRange := req.Header.Get("Range")
 				start, end := parseRange(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Response-Range", requestRange)
+				w.Header().Add("Response-Range", responseRangeHeaderValue(start, end, len(resp)))
 				statusCode = 206
 			}
 			switch req.URL.Path {
@@ -364,7 +368,7 @@ func TestThreeUrlsOneOfWhichReturns1byteAtATimeOneOfWhichBreaksAfter2bytes(t *te
 				requestRange := req.Header.Get("Range")
 				start, end := parseRange(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Response-Range", requestRange)
+				w.Header().Add("Response-Range", responseRangeHeaderValue(start, end, len(resp)))
 				statusCode = 206
 			}
 			switch req.URL.Path {
@@ -452,7 +456,7 @@ func TestSingleURL1ByteARequest(t *testing.T) {
 				requestRange := req.Header.Get("Range")
 				start, end := parseRange(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Response-Range", requestRange)
+				w.Header().Add("Response-Range", responseRangeHeaderValue(start, end, len(resp)))
 				statusCode = 206
 			}
 			currentResp = currentResp[:1]
