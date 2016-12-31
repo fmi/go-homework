@@ -95,6 +95,54 @@ func TestSingleURLWithReturn(t *testing.T) {
 	checkResponse(t, resp, buf.Bytes()[:n])
 }
 
+// Test simple case with one url and wait to return any bytes until DownloadFile returns the reader
+func TestSingleURLBlockUntilDownloadFileReturns(t *testing.T) {
+	var resp = []byte("This IS the most epic of all response")
+	var block = make(chan struct{})
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		<-block
+		switch req.Method {
+		case http.MethodHead:
+			w.Header().Add("Content-Length", strconv.Itoa(len(resp)))
+			w.WriteHeader(200)
+		case http.MethodGet:
+			var currentResp = resp
+			var statusCode = 200
+			if _, ok := req.Header["Range"]; ok {
+				requestRange := req.Header.Get("Range")
+				start, end := parseRange(requestRange)
+				currentResp = resp[start : end+1]
+				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				statusCode = 206
+			}
+			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
+			w.WriteHeader(statusCode)
+			n, err := w.Write(currentResp)
+			if n != len(currentResp) {
+				t.Errorf("Wrote %d not %d as expected", n, len(currentResp))
+			}
+			if err != nil {
+				t.Errorf("Got error while writing response")
+			}
+		}
+	}))
+	defer s.Close()
+
+	r := DownloadFile(context.Background(), []string{s.URL + "/pesho"})
+	close(block)
+	var buf bytes.Buffer
+	n, err := buf.ReadFrom(r)
+	if int(n) != len(resp) {
+		t.Errorf("Expected to read %d bytes from simple download but got %d", len(resp), n)
+	}
+
+	if err != nil {
+		t.Errorf("Expected to get no error, but got '%s'", err)
+	}
+
+	checkResponse(t, resp, buf.Bytes()[:n])
+}
+
 // Test no valid urls
 func TestNoValidUrls(t *testing.T) {
 	r := DownloadFile(context.Background(), []string{nonExistingURL})
