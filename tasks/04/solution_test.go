@@ -158,7 +158,7 @@ func TestReturnOnly10Bytes(t *testing.T) {
 		t.Errorf("Expected to read %d bytes from simple download but got %d", len(resp), n)
 	}
 
-	if err.Error() != noValidUrls {
+	if err == nil || err.Error() != noValidUrls {
 		t.Errorf("Expected to get  error with message '%s', but got '%s'", noValidUrls, err)
 	}
 
