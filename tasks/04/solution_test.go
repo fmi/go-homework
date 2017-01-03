@@ -13,20 +13,20 @@ import (
 	"testing"
 )
 
-var noValidUrls = "no valid urls"
+const NoValidURLSInTest = "no valid urls"
 
-var nonExistingURL = "http://some.non.existing.domain.at.nowhere/pesho"
+const NonExistingURLInTest = "http://some.non.existing.domain.at.nowhere/pesho"
 
-func parseRange(s string) (start, end int) {
+func parseRangeInTest(s string) (start, end int) {
 	fmt.Sscanf(s, "bytes=%d-%d", &start, &end)
 	return
 }
 
-func responseRangeHeaderValue(start, end, size int) string {
+func responseRangeHeaderValueInTest(start, end, size int) string {
 	return fmt.Sprintf("bytes %d-%d/%d", start, end, size)
 }
 
-func checkResponse(t *testing.T, expected, got []byte) {
+func checkResponseInTest(t *testing.T, expected, got []byte) {
 	if !bytes.Equal(expected, got) {
 		t.Errorf("Expected result was '%s' but got '%s'", hex.EncodeToString(expected), hex.EncodeToString(got))
 	}
@@ -63,9 +63,9 @@ func TestSingleURLWithReturn(t *testing.T) {
 			var statusCode = 200
 			if _, ok := req.Header["Range"]; ok {
 				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
+				start, end := parseRangeInTest(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 				statusCode = 206
 			}
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
@@ -92,7 +92,7 @@ func TestSingleURLWithReturn(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	checkResponse(t, resp, buf.Bytes()[:n])
+	checkResponseInTest(t, resp, buf.Bytes()[:n])
 }
 
 // Test simple case with one url and wait to return any bytes until DownloadFile returns the reader
@@ -110,9 +110,9 @@ func TestSingleURLBlockUntilDownloadFileReturns(t *testing.T) {
 			var statusCode = 200
 			if _, ok := req.Header["Range"]; ok {
 				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
+				start, end := parseRangeInTest(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 				statusCode = 206
 			}
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
@@ -140,12 +140,12 @@ func TestSingleURLBlockUntilDownloadFileReturns(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	checkResponse(t, resp, buf.Bytes()[:n])
+	checkResponseInTest(t, resp, buf.Bytes()[:n])
 }
 
 // Test no valid urls
 func TestNoValidUrls(t *testing.T) {
-	r := DownloadFile(context.Background(), []string{nonExistingURL})
+	r := DownloadFile(context.Background(), []string{NonExistingURLInTest})
 	var buf bytes.Buffer
 	n, err := buf.ReadFrom(r)
 	if int(n) != 0 {
@@ -173,12 +173,12 @@ func TestReturnOnly10Bytes(t *testing.T) {
 				var statusCode = 200
 				if _, ok := req.Header["Range"]; ok {
 					requestRange := req.Header.Get("Range")
-					start, end := parseRange(requestRange)
+					start, end := parseRangeInTest(requestRange)
 					if start != 0 {
 						t.Errorf("Expected to get one request from 0 to end got start %d", start)
 					}
 					currentResp = resp[start : end+1]
-					w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+					w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 					statusCode = 206
 				}
 				w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
@@ -206,11 +206,11 @@ func TestReturnOnly10Bytes(t *testing.T) {
 		t.Errorf("Expected to read %d bytes from simple download but got %d", len(resp), n)
 	}
 
-	if err == nil || err.Error() != noValidUrls {
-		t.Errorf("Expected to get  error with message '%s', but got '%s'", noValidUrls, err)
+	if err == nil || err.Error() != NoValidURLSInTest {
+		t.Errorf("Expected to get  error with message '%s', but got '%s'", NoValidURLSInTest, err)
 	}
 
-	checkResponse(t, resp[:bytesToReturn], buf.Bytes()[:n])
+	checkResponseInTest(t, resp[:bytesToReturn], buf.Bytes()[:n])
 }
 
 // Test simple case with two urls
@@ -227,9 +227,9 @@ func TestTwoUrls(t *testing.T) {
 			var currentResp = resp
 			if _, ok := req.Header["Range"]; ok {
 				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
+				start, end := parseRangeInTest(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 				statusCode = 206
 			}
 			switch req.URL.Path {
@@ -263,7 +263,7 @@ func TestTwoUrls(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	checkResponse(t, resp, buf.Bytes()[:n])
+	checkResponseInTest(t, resp, buf.Bytes()[:n])
 	if int64(pesho+pesho2) != n {
 		t.Errorf("It was expected that the downloaded amount from both urls "+
 			" will be equal to the size of the request but while it was %d, "+
@@ -289,9 +289,9 @@ func TestTwoUrlsWithOneBroken(t *testing.T) {
 			var currentResp = resp
 			if _, ok := req.Header["Range"]; ok {
 				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
+				start, end := parseRangeInTest(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 				statusCode = 206
 			}
 			w.Header().Add("Content-Length", strconv.Itoa(len(currentResp)))
@@ -307,7 +307,7 @@ func TestTwoUrlsWithOneBroken(t *testing.T) {
 	}))
 	defer s.Close()
 
-	r := DownloadFile(context.Background(), []string{s.URL + "/pesho", nonExistingURL})
+	r := DownloadFile(context.Background(), []string{s.URL + "/pesho", NonExistingURLInTest})
 	var buf bytes.Buffer
 	n, err := buf.ReadFrom(r)
 	if int(n) != len(resp) {
@@ -318,7 +318,7 @@ func TestTwoUrlsWithOneBroken(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	checkResponse(t, resp, buf.Bytes()[:n])
+	checkResponseInTest(t, resp, buf.Bytes()[:n])
 }
 
 // Test simple case with two urls one of which stops responding after the first 5 bytes
@@ -336,9 +336,9 @@ func TestTwoUrlsOneStopRespondingAfter5bytes(t *testing.T) {
 			var currentResp = resp
 			if _, ok := req.Header["Range"]; ok {
 				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
+				start, end := parseRangeInTest(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 				statusCode = 206
 			}
 			switch req.URL.Path {
@@ -377,7 +377,7 @@ func TestTwoUrlsOneStopRespondingAfter5bytes(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	checkResponse(t, resp, buf.Bytes()[:n])
+	checkResponseInTest(t, resp, buf.Bytes()[:n])
 
 	if int64(pesho+pesho2) != n {
 		t.Errorf("It was expected that the downloaded amount from both urls "+
@@ -411,9 +411,9 @@ func TestThreeUrlsOneOfWhichReturns1byteAtATimeOneOfWhichBreaksAfter2bytes(t *te
 			var currentResp = resp
 			if _, ok := req.Header["Range"]; ok {
 				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
+				start, end := parseRangeInTest(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 				statusCode = 206
 			}
 			switch req.URL.Path {
@@ -460,7 +460,7 @@ func TestThreeUrlsOneOfWhichReturns1byteAtATimeOneOfWhichBreaksAfter2bytes(t *te
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	checkResponse(t, resp, buf.Bytes()[:n])
+	checkResponseInTest(t, resp, buf.Bytes()[:n])
 
 	if int64(pesho+pesho2+pesho3) != n {
 		t.Errorf("It was expected that the downloaded amount from both urls "+
@@ -497,9 +497,9 @@ func TestSingleURL1ByteARequest(t *testing.T) {
 			var currentResp = resp
 			if _, ok := req.Header["Range"]; ok {
 				requestRange := req.Header.Get("Range")
-				start, end := parseRange(requestRange)
+				start, end := parseRangeInTest(requestRange)
 				currentResp = resp[start : end+1]
-				w.Header().Add("Content-Range", responseRangeHeaderValue(start, end, len(resp)))
+				w.Header().Add("Content-Range", responseRangeHeaderValueInTest(start, end, len(resp)))
 				statusCode = 206
 			}
 			currentResp = currentResp[:1]
@@ -527,7 +527,7 @@ func TestSingleURL1ByteARequest(t *testing.T) {
 		t.Errorf("Expected to get no error, but got '%s'", err)
 	}
 
-	checkResponse(t, resp, buf.Bytes()[:n])
+	checkResponseInTest(t, resp, buf.Bytes()[:n])
 }
 
 func abs32(a int32) int32 {
