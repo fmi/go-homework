@@ -35,6 +35,8 @@ func checkResponseInTest(t *testing.T, expected, got []byte) {
 // Test nothing to return
 func TestNothingIsReturned(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Add("Content-Length", "0")
+		w.WriteHeader(200)
 	}))
 	defer s.Close()
 
