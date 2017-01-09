@@ -919,8 +919,8 @@ func TestSlowLingchiWithMaxConnections(t *testing.T) {
 // returnting a single byte but waiting a while first and with max of 20 connections and errors all
 // around
 func TestSlowLingchiWithBothMaxConnectionsAndALotOfErrors(t *testing.T) {
-	const thousand = 100 // it's important to not forget how much is a thousand
-	const returningUrls = 5
+	const thousand = 50 // it's important to not forget how much is a thousand
+	const returningUrls = 20
 	var resp = []byte("This IS the most epic of all response")
 	for {
 		resp = append(resp, resp...)
@@ -947,11 +947,11 @@ func TestSlowLingchiWithBothMaxConnectionsAndALotOfErrors(t *testing.T) {
 			t.Errorf("Coudn't parse index out of %s", req.URL.Path)
 			return
 		}
-		if atomic.CompareAndSwapInt32(&currentlyGetting[index], 0, 1) {
+		if !atomic.CompareAndSwapInt32(&currentlyGetting[index], 0, 1) {
 			t.Errorf("url with index %d already in request when a new one came", index)
 		}
 		defer atomic.StoreInt32(&currentlyGetting[index], 0)
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond * 5)
 
 		switch req.Method {
 		case http.MethodHead:
