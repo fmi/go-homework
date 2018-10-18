@@ -34,19 +34,19 @@ counter := Generator(
     func (v int) int { return v + 1 },
     0,
 )
-sqrt := Generator(
+power := Generator(
     func (v int) int { return v * v },
     2,
 )
 
 counter() // 0
 counter() // 1
-sqrt() // 2
-sqrt() // 4
+power() // 2
+power() // 4
 counter() // 2
-sqrt() // 16
+power() // 16
 counter() // 3
-sqrt() // 256
+power() // 256
 ```
 
 ## MapReducer
@@ -60,13 +60,13 @@ func MapReducer(mapper func (int) int, reducer func (int, int) int, initial int)
 Която може да бъде използвана по следния начин
 
 ```
-sqrtSum := MapReducer(
+powerSum := MapReducer(
     func (v int) int { return v * v },
     func (a, v int) int { return a + v },
     0,
 )
 
-sqrtSum(1, 2, 3, 4) // 30
+powerSum(1, 2, 3, 4) // 30
 ```
 
 Аргументите на `reducer` трябва да се подават от ляво на дясно. Иначе казано - напишете [left-fold](https://en.wikipedia.org/wiki/Fold_(higher-order_function)#On_lists) във вашата имплементация.

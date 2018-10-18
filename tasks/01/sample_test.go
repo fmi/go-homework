@@ -14,13 +14,13 @@ func TestRepeaterSample(t *testing.T) {
 }
 
 func TestMapReducerSample(t *testing.T) {
-	sqrtSum := MapReducer(
+	powerSum := MapReducer(
 		func(v int) int { return v * v },
 		func(a, v int) int { return a + v },
 		0,
 	)
 
-	actual := sqrtSum(1, 2, 3, 4)
+	actual := powerSum(1, 2, 3, 4)
 	expected := 30
 
 	if expected != actual {
