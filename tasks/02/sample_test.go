@@ -101,6 +101,15 @@ func TestSample(t *testing.T) {
 		f.Insert(10, "English ").Undo().Redo().Redo().Redo()
 		compare(t, "A span of English text", f.String())
 	})
+
+	t.Run("edit_after_undo_should_invalidate_redo", func(t *testing.T) {
+		f := NewEditor("A large span of text")
+		f.Insert(16, "an English ").Insert(2, "very ").Insert(36, " message.").Insert(0, "This is ")
+		f.Delete(12, 27)
+		f.Undo().Undo().Undo().Undo().Undo()
+		f.Insert(20, " message").Redo().Redo().Redo()
+		compare(t, "A large span of text message", f.String())
+	})
 }
 
 func compare(t *testing.T, exp, got string) {
