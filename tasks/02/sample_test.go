@@ -110,6 +110,18 @@ func TestSample(t *testing.T) {
 		f.Insert(20, " message").Redo().Redo().Redo()
 		compare(t, "A large span of text message", f.String())
 	})
+
+	t.Run("insert_works_with_unicode", func(t *testing.T) {
+		f := NewEditor("Hello, 世界")
+		f.Insert(10, "___")
+		compare(t, "Hello, 世___界", f.String())
+	})
+
+	t.Run("delete_works_with_unicode", func(t *testing.T) {
+		f := NewEditor("Hello, 世界")
+		f.Delete(7, 3)
+		compare(t, "Hello, 界", f.String())
+	})
 }
 
 func compare(t *testing.T, exp, got string) {
