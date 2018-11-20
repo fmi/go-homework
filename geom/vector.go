@@ -42,7 +42,7 @@ func Sub(v1, v2 Vector) (v Vector) {
 }
 
 // Len returns a float64, the length of v.
-func Len(v Vector) (l float64) {
+func Len(v Vector) float64 {
 	return math.Sqrt(Dot(v, v))
 }
 
