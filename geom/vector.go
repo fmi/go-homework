@@ -38,3 +38,19 @@ func Sub(v1, v2 Vector) (v Vector) {
 	v.Z = v1.Z - v2.Z
 	return
 }
+
+// Add returns a Vector, the result of subtracting v2 from v1.
+func Add(v1, v2 Vector) (v Vector) {
+	v.X = v1.X + v2.X
+	v.Y = v1.Y + v2.Y
+	v.Z = v1.Z + v2.Z
+	return
+}
+
+// Mul returns a Vector, multiplied by the scalar value n
+func Mul(v Vector, n float64) (result Vector) {
+	result.X = v.X * n
+	result.Y = v.Y * n
+	result.Z = v.Z * n
+	return
+}
