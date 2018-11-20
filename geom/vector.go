@@ -1,5 +1,7 @@
 package geom
 
+import "math"
+
 // Vector represents a point or a direction vector in a 3D cartesian coordinate system.
 type Vector struct {
 	// X, Y and Z are the coordinates of a point in each of the three
@@ -39,7 +41,12 @@ func Sub(v1, v2 Vector) (v Vector) {
 	return
 }
 
-// Add returns a Vector, the result of subtracting v2 from v1.
+// Len returns a float64, the length of v.
+func Len(v Vector) (l float64) {
+	return math.Sqrt(Dot(v, v))
+}
+
+// Add returns a Vector, the result of adding v2 and v1.
 func Add(v1, v2 Vector) (v Vector) {
 	v.X = v1.X + v2.X
 	v.Y = v1.Y + v2.Y
@@ -47,7 +54,7 @@ func Add(v1, v2 Vector) (v Vector) {
 	return
 }
 
-// Mul returns a Vector, multiplied by the scalar value n
+// Mul returns a Vector, multiplied by the scalar value n.
 func Mul(v Vector, n float64) (result Vector) {
 	result.X = v.X * n
 	result.Y = v.Y * n
