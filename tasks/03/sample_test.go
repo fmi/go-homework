@@ -24,7 +24,7 @@ func TestSampleIntersectableImplementations(t *testing.T) {
 	a, b, c, d := geom.NewVector(-1, -1, 0),
 		geom.NewVector(1, -1, 0),
 		geom.NewVector(0, 1, 0),
-		geom.NewVector(1, 1, 0)
+		geom.NewVector(-1, 1, 0)
 
 	prim = NewTriangle(a, b, c)
 	prim = NewQuad(a, b, c, d)
