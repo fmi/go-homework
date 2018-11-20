@@ -25,7 +25,7 @@ func Cross(v1, v2 Vector) (v Vector) {
 	return
 }
 
-// Dot returns a float64, dot product of v1 and v2.
+// Dot returns a float64, the dot product of v1 and v2.
 func Dot(v1, v2 Vector) (d float64) {
 	d = v1.X*v2.X + v1.Y*v2.Y + v1.Z*v2.Z
 	return
