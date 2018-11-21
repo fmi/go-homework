@@ -30,15 +30,15 @@ func TestSampleSimpleTriangleBoundaryIntersectionShouldIntersect(t *testing.T) {
 	}
 }
 
-func TestSampleSimpleSphereShouldIntersect(t *testing.T) {
+func TestSampleSimpleSphereShouldNotIntersect(t *testing.T) {
 	var prim geom.Intersectable
 
 	origin, r := geom.NewVector(0, 0, 0), 2.0
 	prim = NewSphere(origin, r)
-	ray := geom.NewRay(geom.NewVector(0, 0, 2.5), geom.NewVector(0, 0, 1))
+	ray := geom.NewRay(geom.NewVector(0, 0, 2.5), geom.NewVector(0, 0, 3.5))
 
-	if !prim.Intersect(ray) {
-		t.Errorf("Expected ray %#v to intersect sphere %#v but it did not.", ray, prim)
+	if prim.Intersect(ray) {
+		t.Errorf("Expected ray %#v to not intersect sphere %#v but it did.", ray, prim)
 	}
 }
 
