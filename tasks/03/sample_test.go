@@ -70,18 +70,6 @@ func TestRayParallelToTheTriangle(t *testing.T) {
 	}
 }
 
-//Sphere test should intersect the sphere
-func TestRayIntersectSphere(t *testing.T) {
-
-	center := geom.NewVector(0, 0, 0)
-	radius := 2.0
-	sphere := NewSphere(center, radius)
-	ray := geom.NewRay(geom.NewVector(0, 0, -2), geom.NewVector(0, 0, 7))
-	if !sphere.Intersect(ray) {
-		t.Errorf("Expected the ray %#v to intersect the sphere %#v but it did not.", ray, sphere)
-	}
-}
-
 func TestSampleIntersectableImplementations(t *testing.T) {
 	var prim geom.Intersectable
 
