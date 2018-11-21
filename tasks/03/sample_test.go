@@ -45,7 +45,7 @@ func TestSampleSimpleSphereShouldIntersect(t *testing.T) {
 func TestSampleSimpleQuadConvexShouldIntersect(t *testing.T) {
 	var prim geom.Intersectable
 
-	a, b, c, d := geom.NewVector(0, -2, 0), geom.NewVector(3, 0, 0), geom.NewVector(0, 1, 0), geom.Vector{-1, 0, 0}
+	a, b, c, d := geom.NewVector(0, -2, 0), geom.NewVector(3, 0, 0), geom.NewVector(0, 1, 0), geom.NewVector(-1, 0, 0)
 	prim = NewQuad(a, b, c, d)
 	ray := geom.NewRay(geom.NewVector(0, 0, 2), geom.NewVector(0, 0, -1))
 
@@ -57,7 +57,7 @@ func TestSampleSimpleQuadConvexShouldIntersect(t *testing.T) {
 func TestSampleSimpleQuadConcaveShouldNotIntersect(t *testing.T) {
 	var prim geom.Intersectable
 
-	a, b, c, d := geom.NewVector(0, -2, 0), geom.NewVector(3, 0, 0), geom.NewVector(0, 1, 0), geom.Vector{1, 0, 0}
+	a, b, c, d := geom.NewVector(0, -2, 0), geom.NewVector(3, 0, 0), geom.NewVector(0, 1, 0), geom.NewVector(1, 0, 0)
 	prim = NewQuad(a, b, c, d)
 	ray := geom.NewRay(geom.NewVector(0, 0, 2), geom.NewVector(0, 0, -1))
 
