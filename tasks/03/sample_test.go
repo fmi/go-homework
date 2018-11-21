@@ -18,7 +18,7 @@ func TestSampleSimpleOperationsShouldIntersect(t *testing.T) {
 	}
 }
 
-func TestSampleSimpleTriangleBoundryIntersectionShouldIntersect(t *testing.T) {
+func TestSampleSimpleTriangleBoundaryIntersectionShouldIntersect(t *testing.T) {
 	var prim geom.Intersectable
 
 	a, b, c := geom.NewVector(0, -2, 0), geom.NewVector(3, 0, 0), geom.NewVector(0, 1, 0)
